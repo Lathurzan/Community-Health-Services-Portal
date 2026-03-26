@@ -1,0 +1,80 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.7'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'chaspJava'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.stripe' && details.requested.name == 'stripe-java' && details.requested.version == '<latest-version>') {
+            details.useVersion '24.10.0'
+        }
+        if (details.requested.group == 'com.paypal.sdk' && details.requested.name == 'paypal-checkout-sdk' && details.requested.version == '<latest-version>') {
+            details.useVersion '1.0.1'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // Spring Boot Starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // MySQL JDBC Driver
+    runtimeOnly 'com.mysql:mysql-connector-j:8.1.0'
+
+    // JWT Libraries (required trio)
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
+    // Stripe SDK — VALID VERSION 
+    implementation 'com.stripe:stripe-java:24.10.0'
+
+    // PayPal SDK removed to avoid IDE dependency errors
+    // You can re-enable later when needed
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    // Use the Jupiter umbrella artifact to avoid platform/launcher version conflicts
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    // H2 in-memory database for tests
+    testImplementation 'com.h2database:h2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
